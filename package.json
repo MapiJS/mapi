@@ -1,0 +1,32 @@
+{
+  "name": "mapi",
+  "version": "1.0.0",
+  "description": "An easy to use wrapper for Google Maps API",
+  "main": "index.js",
+  "scripts": {
+    "compile": "webpack -w"
+  },
+  "repository": {
+    "type": "git",
+    "url": "github.com/baltazzar/mapi.git"
+  },
+  "keywords": [
+    "google",
+    "maps"
+  ],
+  "author": "Thiago Ribeiro - thiagofribeiro@gmail.com",
+  "license": "MIT",
+  "devDependencies": {
+    "babel-core": "^6.2.1",
+    "babel-loader": "^6.2.0",
+    "babel-plugin-transform-object-rest-spread": "^6.3.13",
+    "babel-preset-es2015": "^6.1.18",
+    "jshint": "^2.8.0",
+    "jshint-loader": "^0.8.3",
+    "webpack": "^1.12.9"
+  },
+  "dependencies": {
+    "jquery": "^2.1.4",
+    "underscore": "^1.8.3"
+  }
+}

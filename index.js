@@ -44,7 +44,6 @@ class Mapi {
 				this.map = new google.maps.Map($(options.element)[0], options);
 			}
 
-
 			$(options.element).css('height', options.height);
 
 			_.each(options.themes, (name) => {
@@ -138,8 +137,6 @@ class Mapi {
 			this.objects[groupId] = {};
 		}
 
-		// google.maps.event.addDomListener(obj, "rightclick", this.defaultRightClickAction);
-
 		this.objects[groupId][id] = obj;
 	}
 
@@ -151,7 +148,6 @@ class Mapi {
 			else {
 				return false;
 			}
-
 		}
 		else {
 			return false;
@@ -238,5 +234,4 @@ class Mapi {
 
 Mapi.prototype.instances = Mapi.prototype.instances || {};
 
-// exports = Mapi;
 module.exports = Mapi;

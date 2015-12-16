@@ -4,8 +4,6 @@ var pkg = require('./package.json');
 module.exports = {
 	entry: ['./index'],
 	output: {
-		path: './dist',
-		filename: 'mapi.js',
 		libraryTarget: 'umd',
 		library: 'Mapi'
 	},
@@ -34,6 +32,13 @@ module.exports = {
 			}
 		]
 	},
+	plugins: [
+		new webpack.BannerPlugin([
+				pkg.name + ' - ' + pkg.description,
+				'Version: ' + pkg.version,
+				'Author: ' + pkg.author
+			].join('\n'), {entryOnly: true})
+	],
 	eslint: {
 		parser: "babel-eslint"
 		

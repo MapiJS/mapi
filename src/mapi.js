@@ -2,24 +2,24 @@ var $ = require('jquery'),
 	_ = require('underscore');
 
 class Mapi {
-	constructor({height = '400px', lat = 0, lng = 0, zoom = 2, ...options} = {}, callback = _.noop) {
+	constructor({height = '400px', lat = 0, lng = 0, zoom = 2, ...options} = {}) {
 		options = {height, lat, lng, zoom, ...options}; 
 
 		this.objects = {};
 
 		if (!Mapi.prototype.instances[options.element]) {
-		 	Mapi.prototype.instances[options.element] = this.create(options, callback);
+		 	Mapi.prototype.instances[options.element] = this.create(options);
 		} else {
 			var mapi = Mapi.prototype.instances[options.element];
 			mapi.reset();
 			$(options.element).append(mapi.map.getDiv());
-			mapi.create(options, callback);
+			mapi.create(options);
 		}
 
 		return Mapi.prototype.instances[options.element];	
 	}
 
-	create(options, callback) {
+	create(options) {
 		if (google) {
 			this.geocoder = new google.maps.Geocoder();
 			options.center = new google.maps.LatLng(options.lat,options.lng);
@@ -60,7 +60,6 @@ class Mapi {
 
 			google.maps.event.trigger(this.map, 'resize');
 			
-			callback();
 		}
 		else {
 			console.error('Google Maps is not yet available');

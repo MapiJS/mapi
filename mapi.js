@@ -87,8 +87,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 			var options = _objectWithoutProperties(_ref, ['height', 'lat', 'lng', 'zoom']);
 
-			var callback = arguments.length <= 1 || arguments[1] === undefined ? _.noop : arguments[1];
-
 			_classCallCheck(this, Mapi);
 
 			options = _extends({ height: height, lat: lat, lng: lng, zoom: zoom }, options);
@@ -96,12 +94,12 @@ return /******/ (function(modules) { // webpackBootstrap
 			this.objects = {};
 
 			if (!Mapi.prototype.instances[options.element]) {
-				Mapi.prototype.instances[options.element] = this.create(options, callback);
+				Mapi.prototype.instances[options.element] = this.create(options);
 			} else {
 				var mapi = Mapi.prototype.instances[options.element];
 				mapi.reset();
 				$(options.element).append(mapi.map.getDiv());
-				mapi.create(options, callback);
+				mapi.create(options);
 			}
 
 			return Mapi.prototype.instances[options.element];
@@ -109,7 +107,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 		_createClass(Mapi, [{
 			key: 'create',
-			value: function create(options, callback) {
+			value: function create(options) {
 				var _this = this;
 
 				if (google) {
@@ -151,8 +149,6 @@ return /******/ (function(modules) { // webpackBootstrap
 					this.map.setCenter(this.mapCenter);
 
 					google.maps.event.trigger(this.map, 'resize');
-
-					callback();
 				} else {
 					console.error('Google Maps is not yet available');
 				}

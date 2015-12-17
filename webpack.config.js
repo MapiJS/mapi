@@ -2,14 +2,23 @@ var webpack = require('webpack');
 var pkg = require('./package.json');
 
 module.exports = {
-	entry: ['./index'],
 	output: {
 		libraryTarget: 'umd',
 		library: 'Mapi'
 	},
 	externals: {
-        "jquery": "jQuery",
-        "underscore": "_"
+        "jquery": {
+        	root: "jQuery",
+        	commonjs: "jquery",
+        	commonjs2: "jquery",
+        	amd: "jquery"
+        },
+        "underscore": {
+        	root: "_",
+        	commonjs: "underscore",
+        	commonjs2: "underscore",
+        	amd: "underscore"
+        }
     },
 	module: {		
 		preLoaders: [
@@ -34,7 +43,7 @@ module.exports = {
 	},
 	plugins: [
 		new webpack.BannerPlugin([
-				pkg.name + ' - ' + pkg.description,
+				pkg.name[0].toUpperCase() + pkg.name.slice(1) + ' - ' + pkg.description,
 				'Version: ' + pkg.version,
 				'Author: ' + pkg.author
 			].join('\n'), {entryOnly: true})

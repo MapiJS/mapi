@@ -1,13 +1,13 @@
 {
-  "name": "Mapi",
+  "name": "mapi",
   "version": "1.0.0",
   "description": "An easy to use wrapper for Google Maps API",
-  "main": "index.js",
+  "main": "mapi.js",
   "scripts": {
-    "build-normal": "webpack index.js dist/mapi.js",
-    "build-min": "webpack -p index.js dist/mapi.min.js",
+    "build-normal": "webpack src/mapi.js mapi.js",
+    "build-min": "webpack -p src/mapi.js mapi.min.js",
     "build": "npm run build-normal && npm run build-min",
-    "dev": "webpack -w index.js dist/mapi.js"
+    "dev": "webpack -w src/mapi.js mapi.js"
   },
   "repository": {
     "type": "git",

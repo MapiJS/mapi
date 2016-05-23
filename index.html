@@ -49,7 +49,7 @@
 			$('#' + name).remove();
 
 			name = 'teste';
-			$('body').append('<div id="' + name + '"/>'); 
+			$('body').append('<div id="' + name + '">Loading map...</div>'); 
 
 			var mapi = new Mapi({
 				element: '#' + name,
@@ -62,7 +62,6 @@
 				lng: -47.45621,
 				icon: 'https://cdn1.iconfinder.com/data/icons/Map-Markers-Icons-Demo-PNG/128/Map-Marker-Marker-Outside-Azure.png'
 			});
-
 
 			var teste = $('<button>Exibir Ícones</button>').click(function (ev) {alert('teste')});
 

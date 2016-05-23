@@ -41,34 +41,39 @@ class Mapi {
 	 * @param {boolean} options.zoomControl The enabled/disabled state of the Zoom control.
 	 * @param {ZoomControlOptions} options.zoomControlOptions The display options for the Zoom control.
 	 **/
-	constructor({height = '400px', lat = 0, lng = 0, zoom = 2, ...options} = {}) {
-		options = {height, lat, lng, zoom, ...options}; 
+	constructor({ height = '400px', lat = 0, lng = 0, zoom = 2, ...options } = {}) {
+		options = { height, lat, lng, zoom, ...options };
 
 		this.objects = {};
 
-		if (!Mapi.prototype.instances[options.element]) {
-		 	Mapi.prototype.instances[options.element] = this.create(options);
-		} else {
-			var mapi = Mapi.prototype.instances[options.element];
-			mapi.reset();
-			$(options.element).append(mapi.map.getDiv());
-			mapi.create(options);
+		if (!options.element) {
+			throw "You should use 'element' attribute on options.";
 		}
 
-		return Mapi.prototype.instances[options.element];	
+		if (!Mapi.prototype.instances[options.element]) {
+			Mapi.prototype.instances[options.element] = this.create(options);
+		} else {
+			var mapi = Mapi.prototype.instances[options.element];
+
+			$(options.element).html(mapi.map.getDiv());
+			mapi.create(options);
+			mapi.reset();
+		}
+
+		return Mapi.prototype.instances[options.element];
 	}
 
 	create(options) {
 		if (google) {
 			this.geocoder = new google.maps.Geocoder();
-			options.center = new google.maps.LatLng(options.lat,options.lng);
+			options.center = new google.maps.LatLng(options.lat, options.lng);
 			this.mapCenter = options.center;
-			
+
 			_.each(options.themes, (name) => {
 				options.mapTypeControlOptions = options.mapTypeControlOptions || [];
 				options.mapTypeControlOptions.mapTypeIds = options.mapTypeControlOptions.mapTypeIds || [];
-			
-				if(_.contains(_.keys(google.maps.MapTypeId), name.toUpperCase())) {
+
+				if (_.contains(_.keys(google.maps.MapTypeId), name.toUpperCase())) {
 					name = google.maps.MapTypeId[name.toUpperCase()];
 				}
 
@@ -91,26 +96,25 @@ class Mapi {
 				}));
 			});
 
-			if(options.defaultTheme) {
+			if (options.defaultTheme) {
 				this.setTheme(options.defaultTheme);
 			}
 
 			this.map.setCenter(this.mapCenter);
 
 			google.maps.event.trigger(this.map, 'resize');
-			
-		}
-		else {
+
+		} else {
 			console.error('Google Maps is not yet available');
 		}
 
 		return this;
 	}
 
-	addMarker({groupId = 'markers', id = _.uniqueId('marker-'), lat, lng, ...options}) {
+	addMarker({ groupId = 'markers', id = _.uniqueId('marker-'), lat, lng, ...options }) {
 		if (!this.existsObject(groupId, id)) {
 
-			options.position =  new google.maps.LatLng(lat, lng);
+			options.position = new google.maps.LatLng(lat, lng);
 			options.map = this.map;
 
 			if (options.iconCenter) {
@@ -129,7 +133,7 @@ class Mapi {
 			obj.setMap(this.map);
 
 			this.addObject(groupId, id, obj);
-			
+
 			_.each(options.events, function (fn, key) {
 				google.maps.event.addListener(
 					obj,
@@ -144,9 +148,9 @@ class Mapi {
 		}
 	}
 
-	addCircle({groupId = 'circle', id = _.uniqueId('circle-'), lat, lng, ...options}) {
+	addCircle({ groupId = 'circle', id = _.uniqueId('circle-'), lat, lng, ...options }) {
 		if (!this.existsObject(groupId, id)) {
-			options.center = {lat,lng};
+			options.center = { lat, lng };
 			// options.position =  new google.maps.LatLng(lat, lng);
 			options.map = this.map;
 
@@ -170,7 +174,7 @@ class Mapi {
 		}
 	}
 
-	addObject (groupId, id, obj) {
+	addObject(groupId, id, obj) {
 		if (!this.objects[groupId]) {
 			this.objects[groupId] = {};
 		}
@@ -182,12 +186,10 @@ class Mapi {
 		if (typeof this.objects[groupId] !== 'undefined') {
 			if (typeof this.objects[groupId][id] !== 'undefined') {
 				return true;
-			}
-			else {
+			} else {
 				return false;
 			}
-		}
-		else {
+		} else {
 			return false;
 		}
 	}
@@ -202,7 +204,7 @@ class Mapi {
 					obj.remove();
 				}
 				obj = null;
-			
+
 				delete this.objects[groupId][objId];
 			}.bind(this));
 
@@ -212,7 +214,7 @@ class Mapi {
 
 
 	setTheme(name) {
-		if(_.contains(_.keys(google.maps.MapTypeId), name.toUpperCase())) {
+		if (_.contains(_.keys(google.maps.MapTypeId), name.toUpperCase())) {
 			name = google.maps.MapTypeId[name.toUpperCase()];
 		}
 
@@ -228,22 +230,21 @@ class Mapi {
 		var $el = $(html);
 
 		$el.attr('id', $el.attr('id') || _.uniqueId('control-'));
-		 
+
 		if (typeof this.objects.controls === 'undefined') {
 			this.objects.controls = {};
 		}
 
 		if (typeof this.objects.controls[$el.attr('id')] === 'undefined') {
 			$el.addClass('mapControl')[0];
-		
+
 			// Adiciona o botão Editar ao lado dos controles do mapa
 			this.map.controls[google.maps.ControlPosition[position]].push($el[0]);
 			$el.data('position', position);
 			this.objects.controls[$el.attr('id')] = $el;
-		
+
 			return $el;
-		}
-		else {
+		} else {
 			return this.objects.controls[$el.attr('id')];
 		}
 	}
@@ -255,8 +256,7 @@ class Mapi {
 			if (this.objects[groupId][id]) {
 				that.objects[groupId][id].setMap(that.objects[groupId][id].map == that.map ? null : that.map);
 			}
-		}
-		else {
+		} else {
 			_.each(this.objects[groupId], function (obj) {
 				obj.setMap(obj.map == that.map ? null : that.map);
 			});

@@ -1,6 +1,6 @@
 /*!
  * Mapi - An easy to use wrapper for Google Maps API
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: Thiago Ribeiro - thiagofribeiro@gmail.com
  */
 (function webpackUniversalModuleDefinition(root, factory) {
@@ -213,7 +213,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 				var options = _objectWithoutProperties(_ref2, ['groupId', 'id', 'lat', 'lng']);
 
-				if (!this.existsObject(groupId, id)) {
+				if (!this.existsObject({ groupId: groupId, id: id })) {
 
 					options.position = new google.maps.LatLng(lat, lng);
 					options.map = this.map;
@@ -229,19 +229,19 @@ return /******/ (function(modules) { // webpackBootstrap
 						options.animation = google.maps.Animation[options.animation];
 					}
 
-					var obj = new google.maps.Marker(options);
-					obj.id = id;
-					obj.setMap(this.map);
+					var object = new google.maps.Marker(options);
+					object.id = id;
+					object.setMap(this.map);
 
-					this.addObject(groupId, id, obj);
+					this.addObject({ groupId: groupId, id: id, object: object });
 
 					_.each(options.events, function (fn, key) {
-						google.maps.event.addListener(obj, key, function (ev) {
-							fn(ev, obj, id);
+						google.maps.event.addListener(object, key, function (ev) {
+							fn(ev, object, id);
 						});
 					});
 
-					return obj;
+					return object;
 				}
 			}
 		}, {
@@ -272,26 +272,76 @@ return /******/ (function(modules) { // webpackBootstrap
 						options.animation = google.maps.Animation[options.animation];
 					}
 
-					var obj = new google.maps.Circle(options);
-					obj.id = id;
-					obj.setMap(this.map);
+					var object = new google.maps.Circle(options);
+					object.id = id;
+					object.setMap(this.map);
 
-					this.addObject(groupId, id, obj);
-					return obj;
+					this.addObject({ groupId: groupId, id: id, object: object });
+					return object;
 				}
 			}
 		}, {
 			key: 'addObject',
-			value: function addObject(groupId, id, obj) {
+			value: function addObject(_ref4) {
+				var groupId = _ref4.groupId;
+				var id = _ref4.id;
+				var object = _ref4.object;
+
 				if (!this.objects[groupId]) {
 					this.objects[groupId] = {};
 				}
+				if (this.existsObject({ groupId: groupId, id: id })) {
+					removeObject({ groupId: groupId, id: id });
+				}
+				this.objects[groupId][id] = object;
+			}
+		}, {
+			key: 'removeObjects',
+			value: function removeObjects(_ref5) {
+				var _this2 = this;
 
-				this.objects[groupId][id] = obj;
+				var groupId = _ref5.groupId;
+
+				if (typeof groupId === 'undefined') {
+					throw 'The attribute "groupId" should be defined.';
+				}
+
+				_(this.objects[groupId]).each(function (obj, id) {
+					_this2.removeObject({ groupId: groupId, id: id });
+				});
+			}
+		}, {
+			key: 'removeObject',
+			value: function removeObject(_ref6) {
+				var groupId = _ref6.groupId;
+				var id = _ref6.id;
+
+				if (typeof groupId === 'undefined' || typeof id === 'undefined') {
+					throw 'The attributes "groupId" and "id" should be defined.';
+				}
+
+				if (this.existsObject({ groupId: groupId, id: id })) {
+					var obj = this.objects[groupId][id];
+					if (obj) {
+						if (obj.setMap) {
+							obj.setMap(null);
+						}
+
+						if (obj.remove) {
+							obj.remove();
+						}
+
+						obj = null;
+						delete this.objects[groupId][id];
+					}
+				}
 			}
 		}, {
 			key: 'existsObject',
-			value: function existsObject(groupId, id) {
+			value: function existsObject(_ref7) {
+				var groupId = _ref7.groupId;
+				var id = _ref7.id;
+
 				if (typeof this.objects[groupId] !== 'undefined') {
 					if (typeof this.objects[groupId][id] !== 'undefined') {
 						return true;
@@ -305,21 +355,11 @@ return /******/ (function(modules) { // webpackBootstrap
 		}, {
 			key: 'reset',
 			value: function reset() {
-				_.each(this.objects, function (item, groupId) {
-					_.each(item, function (obj, objId) {
-						if (obj.setMap) {
-							obj.setMap(null);
-						}
-						if (obj.remove) {
-							obj.remove();
-						}
-						obj = null;
+				var _this3 = this;
 
-						delete this.objects[groupId][objId];
-					}.bind(this));
-
-					delete this.objects[groupId];
-				}.bind(this));
+				_(this.objects).each(function (item, groupId) {
+					_this3.removeObjects({ groupId: groupId });
+				});
 			}
 		}, {
 			key: 'setTheme',
@@ -346,7 +386,6 @@ return /******/ (function(modules) { // webpackBootstrap
 				if (typeof this.objects.controls[$el.attr('id')] === 'undefined') {
 					$el.addClass('mapControl')[0];
 
-					// Adiciona o botão Editar ao lado dos controles do mapa
 					this.map.controls[google.maps.ControlPosition[position]].push($el[0]);
 					$el.data('position', position);
 					this.objects.controls[$el.attr('id')] = $el;
@@ -380,10 +419,10 @@ return /******/ (function(modules) { // webpackBootstrap
 		}, {
 			key: 'registerPlugin',
 			value: function registerPlugin(plugin) {
-				var _this2 = this;
+				var _this4 = this;
 
 				_.each(plugin, function (fn, name) {
-					_this2.prototype[name] = fn;
+					_this4.prototype[name] = fn;
 				});
 			}
 		}]);

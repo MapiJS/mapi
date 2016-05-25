@@ -112,7 +112,7 @@ class Mapi {
 	}
 
 	addMarker({ groupId = 'markers', id = _.uniqueId('marker-'), lat, lng, ...options }) {
-		if (!this.existsObject(groupId, id)) {
+		if (!this.existsObject({groupId, id})) {
 
 			options.position = new google.maps.LatLng(lat, lng);
 			options.map = this.map;
@@ -128,23 +128,23 @@ class Mapi {
 				options.animation = google.maps.Animation[options.animation];
 			}
 
-			var obj = new google.maps.Marker(options);
-			obj.id = id;
-			obj.setMap(this.map);
+			var object = new google.maps.Marker(options);
+			object.id = id;
+			object.setMap(this.map);
 
-			this.addObject(groupId, id, obj);
+			this.addObject({groupId, id, object});
 
 			_.each(options.events, function (fn, key) {
 				google.maps.event.addListener(
-					obj,
+					object,
 					key,
 					function (ev) {
-						fn(ev, obj, id);
+						fn(ev, object, id);
 					}
 				);
 			});
 
-			return obj;
+			return object;
 		}
 	}
 
@@ -165,24 +165,58 @@ class Mapi {
 				options.animation = google.maps.Animation[options.animation];
 			}
 
-			var obj = new google.maps.Circle(options);
-			obj.id = id;
-			obj.setMap(this.map);
+			var object = new google.maps.Circle(options);
+			object.id = id;
+			object.setMap(this.map);
 
-			this.addObject(groupId, id, obj);
-			return obj;
+			this.addObject({groupId, id, object});
+			return object;
 		}
 	}
 
-	addObject(groupId, id, obj) {
+	addObject({groupId, id, object}) {
 		if (!this.objects[groupId]) {
 			this.objects[groupId] = {};
 		}
-
-		this.objects[groupId][id] = obj;
+		if (this.existsObject({groupId, id})) {
+			removeObject({groupId, id});
+		}
+		this.objects[groupId][id] = object;
 	}
 
-	existsObject(groupId, id) {
+	removeObjects({groupId}) {
+		if (typeof groupId === 'undefined') {
+			throw 'The attribute "groupId" should be defined.';
+		}
+		
+		_(this.objects[groupId]).each((obj, id) => {
+			this.removeObject({groupId, id});
+		});
+	}
+	
+	removeObject({groupId, id}) {
+		if (typeof groupId === 'undefined' || typeof id === 'undefined') {
+			throw 'The attributes "groupId" and "id" should be defined.';
+		}
+		
+		if (this.existsObject({groupId, id})) {
+			var obj = this.objects[groupId][id];
+			if (obj) {
+				if (obj.setMap) {
+					obj.setMap(null);
+				}
+				
+				if (obj.remove) {
+					obj.remove();
+				}
+			
+				obj = null;
+				delete this.objects[groupId][id];
+			}
+		}
+	}
+
+	existsObject({groupId, id}) {
 		if (typeof this.objects[groupId] !== 'undefined') {
 			if (typeof this.objects[groupId][id] !== 'undefined') {
 				return true;
@@ -195,21 +229,9 @@ class Mapi {
 	}
 
 	reset() {
-		_.each(this.objects, function (item, groupId) {
-			_.each(item, function (obj, objId) {
-				if (obj.setMap) {
-					obj.setMap(null);
-				}
-				if (obj.remove) {
-					obj.remove();
-				}
-				obj = null;
-
-				delete this.objects[groupId][objId];
-			}.bind(this));
-
-			delete this.objects[groupId];
-		}.bind(this));
+		_(this.objects).each((item, groupId) => {
+			this.removeObjects({groupId});
+		});
 	}
 
 
@@ -238,7 +260,6 @@ class Mapi {
 		if (typeof this.objects.controls[$el.attr('id')] === 'undefined') {
 			$el.addClass('mapControl')[0];
 
-			// Adiciona o botão Editar ao lado dos controles do mapa
 			this.map.controls[google.maps.ControlPosition[position]].push($el[0]);
 			$el.data('position', position);
 			this.objects.controls[$el.attr('id')] = $el;

@@ -250,23 +250,26 @@ class Mapi {
 
 	addControl(html, position = 'TOP_LEFT') {
 		var $el = $(html);
+		var id = $el.attr('id') || _.uniqueId('control-');
+		var groupId = 'controls';
+		
+		$el.attr('id', id);
 
-		$el.attr('id', $el.attr('id') || _.uniqueId('control-'));
-
-		if (typeof this.objects.controls === 'undefined') {
-			this.objects.controls = {};
-		}
-
-		if (typeof this.objects.controls[$el.attr('id')] === 'undefined') {
+		if (!this.existsObject({groupId, id})) {
 			$el.addClass('mapControl')[0];
 
 			this.map.controls[google.maps.ControlPosition[position]].push($el[0]);
 			$el.data('position', position);
-			this.objects.controls[$el.attr('id')] = $el;
+			
+			this.addObject({
+				groupId,
+				id,
+				object: $el
+			})
 
 			return $el;
 		} else {
-			return this.objects.controls[$el.attr('id')];
+			return this.objects[groupId][id];
 		}
 	}
 

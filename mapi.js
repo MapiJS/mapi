@@ -376,23 +376,26 @@ return /******/ (function(modules) { // webpackBootstrap
 				var position = arguments.length <= 1 || arguments[1] === undefined ? 'TOP_LEFT' : arguments[1];
 
 				var $el = $(html);
+				var id = $el.attr('id') || _.uniqueId('control-');
+				var groupId = 'controls';
 
-				$el.attr('id', $el.attr('id') || _.uniqueId('control-'));
+				$el.attr('id', id);
 
-				if (typeof this.objects.controls === 'undefined') {
-					this.objects.controls = {};
-				}
-
-				if (typeof this.objects.controls[$el.attr('id')] === 'undefined') {
+				if (!this.existsObject({ groupId: groupId, id: id })) {
 					$el.addClass('mapControl')[0];
 
 					this.map.controls[google.maps.ControlPosition[position]].push($el[0]);
 					$el.data('position', position);
-					this.objects.controls[$el.attr('id')] = $el;
+
+					this.addObject({
+						groupId: groupId,
+						id: id,
+						object: $el
+					});
 
 					return $el;
 				} else {
-					return this.objects.controls[$el.attr('id')];
+					return this.objects[groupId][id];
 				}
 			}
 		}, {

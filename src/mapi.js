@@ -179,7 +179,7 @@ class Mapi {
 			this.objects[groupId] = {};
 		}
 		if (this.existsObject({groupId, id})) {
-			removeObject({groupId, id});
+			this.removeObject({groupId, id});
 		}
 		this.objects[groupId][id] = object;
 	}

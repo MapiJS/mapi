@@ -291,7 +291,7 @@ return /******/ (function(modules) { // webpackBootstrap
 					this.objects[groupId] = {};
 				}
 				if (this.existsObject({ groupId: groupId, id: id })) {
-					removeObject({ groupId: groupId, id: id });
+					this.removeObject({ groupId: groupId, id: id });
 				}
 				this.objects[groupId][id] = object;
 			}

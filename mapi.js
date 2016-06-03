@@ -1,6 +1,6 @@
 /*!
  * Mapi - An easy to use wrapper for Google Maps API
- * Version: 1.0.1
+ * Version: 1.0.2
  * Author: Thiago Ribeiro - thiagofribeiro@gmail.com
  */
 (function webpackUniversalModuleDefinition(root, factory) {
@@ -143,9 +143,10 @@ return /******/ (function(modules) { // webpackBootstrap
 			} else {
 				var mapi = Mapi.prototype.instances[options.element];
 
-				$(options.element).html(mapi.map.getDiv());
-				mapi.create(options);
+				$(options.element).replaceWith(mapi.map.getDiv());
+
 				mapi.reset();
+				mapi.create(options);
 			}
 
 			return Mapi.prototype.instances[options.element];
@@ -174,11 +175,22 @@ return /******/ (function(modules) { // webpackBootstrap
 						}
 					});
 
+					var $controls = $(options.element).find('.controls').clone();
+
 					if (this.map) {
 						this.map.setOptions(options);
 					} else {
 						this.map = new google.maps.Map($(options.element)[0], options);
 					}
+
+					$(options.element).append($controls);
+
+					$controls.each(function (idxContainer, container) {
+						var position = $(container).data('position');
+						$(container).children().each(function (idxEl, el) {
+							this.addControl(el, position);
+						}.bind(this));
+					}.bind(this));
 
 					$(options.element).css('height', options.height);
 
@@ -293,7 +305,12 @@ return /******/ (function(modules) { // webpackBootstrap
 				if (this.existsObject({ groupId: groupId, id: id })) {
 					this.removeObject({ groupId: groupId, id: id });
 				}
+
 				this.objects[groupId][id] = object;
+
+				object.mapi = object.mapi || {};
+				object.mapi.groupId = groupId;
+				object.mapi.id = id;
 			}
 		}, {
 			key: 'removeObjects',
@@ -329,6 +346,18 @@ return /******/ (function(modules) { // webpackBootstrap
 
 						if (obj.remove) {
 							obj.remove();
+						}
+
+						if (obj.data) {
+							var position = obj.data('position');
+							var index = obj.data('index');
+
+							if (this.map.controls[google.maps.ControlPosition[position]].getAt(index)) {
+								this.map.controls[google.maps.ControlPosition[position]].removeAt(index);
+								this.map.controls[google.maps.ControlPosition[position]].forEach(function (el, idx) {
+									$(el).attr('data-index', idx);
+								});
+							}
 						}
 
 						obj = null;
@@ -380,23 +409,21 @@ return /******/ (function(modules) { // webpackBootstrap
 				var groupId = 'controls';
 
 				$el.attr('id', id);
+				$el.addClass('mapControl')[0];
 
-				if (!this.existsObject({ groupId: groupId, id: id })) {
-					$el.addClass('mapControl')[0];
+				$el.attr('data-position', position);
 
-					this.map.controls[google.maps.ControlPosition[position]].push($el[0]);
-					$el.data('position', position);
+				$el.attr('data-index', this.map.controls[google.maps.ControlPosition[position]].length);
 
-					this.addObject({
-						groupId: groupId,
-						id: id,
-						object: $el
-					});
+				this.map.controls[google.maps.ControlPosition[position]].push($el[0]);
 
-					return $el;
-				} else {
-					return this.objects[groupId][id];
-				}
+				this.addObject({
+					groupId: groupId,
+					id: id,
+					object: $el
+				});
+
+				return $el;
 			}
 		}, {
 			key: 'toggleVisibility',

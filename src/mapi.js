@@ -54,10 +54,12 @@ class Mapi {
 			Mapi.prototype.instances[options.element] = this.create(options);
 		} else {
 			var mapi = Mapi.prototype.instances[options.element];
+			
+			$(options.element).replaceWith(mapi.map.getDiv());
 
-			$(options.element).html(mapi.map.getDiv());
-			mapi.create(options);
 			mapi.reset();
+			mapi.create(options);
+
 		}
 
 		return Mapi.prototype.instances[options.element];
@@ -82,11 +84,22 @@ class Mapi {
 				}
 			});
 
+			var  $controls = $(options.element).find('.controls').clone();
+
 			if (this.map) {
 				this.map.setOptions(options);
 			} else {
 				this.map = new google.maps.Map($(options.element)[0], options);
 			}
+
+			$(options.element).append($controls);
+
+			$controls.each(function (idxContainer, container){
+				var position = $(container).data('position');
+				$(container).children().each(function (idxEl, el) {
+					this.addControl(el, position);	
+				}.bind(this));
+			}.bind(this));
 
 			$(options.element).css('height', options.height);
 
@@ -103,7 +116,7 @@ class Mapi {
 			this.map.setCenter(this.mapCenter);
 
 			google.maps.event.trigger(this.map, 'resize');
-
+			
 		} else {
 			console.error('Google Maps is not yet available');
 		}
@@ -181,7 +194,12 @@ class Mapi {
 		if (this.existsObject({groupId, id})) {
 			this.removeObject({groupId, id});
 		}
+		
 		this.objects[groupId][id] = object;
+		
+		object.mapi = object.mapi || {};
+		object.mapi.groupId = groupId;
+		object.mapi.id = id;
 	}
 
 	removeObjects({groupId}) {
@@ -209,7 +227,19 @@ class Mapi {
 				if (obj.remove) {
 					obj.remove();
 				}
-			
+				
+				if(obj.data) {
+					var position = obj.data('position');
+					var index = obj.data('index');
+					
+					if(this.map.controls[google.maps.ControlPosition[position]].getAt(index)) {
+						this.map.controls[google.maps.ControlPosition[position]].removeAt(index);
+						this.map.controls[google.maps.ControlPosition[position]].forEach((el, idx) => {
+							$(el).attr('data-index', idx);
+						});
+					}
+				}
+				
 				obj = null;
 				delete this.objects[groupId][id];
 			}
@@ -243,34 +273,28 @@ class Mapi {
 		this.map.setMapTypeId(name);
 	}
 
-	static addTheme(name, settings) {
-		Mapi.prototype.themes = Mapi.prototype.themes || {};
-		Mapi.prototype.themes[name] = settings;
-	}
-
 	addControl(html, position = 'TOP_LEFT') {
 		var $el = $(html);
 		var id = $el.attr('id') || _.uniqueId('control-');
 		var groupId = 'controls';
 		
 		$el.attr('id', id);
+		$el.addClass('mapControl')[0];
+		
+		$el.attr('data-position', position);
+		
+		$el.attr('data-index',this.map.controls[google.maps.ControlPosition[position]].length);
+		
+		this.map.controls[google.maps.ControlPosition[position]].push($el[0]);
+		
+		this.addObject({
+			groupId,
+			id,
+			object: $el
+		});
 
-		if (!this.existsObject({groupId, id})) {
-			$el.addClass('mapControl')[0];
+		return $el;
 
-			this.map.controls[google.maps.ControlPosition[position]].push($el[0]);
-			$el.data('position', position);
-			
-			this.addObject({
-				groupId,
-				id,
-				object: $el
-			})
-
-			return $el;
-		} else {
-			return this.objects[groupId][id];
-		}
 	}
 
 	toggleVisibility(groupId, id) {
@@ -287,6 +311,11 @@ class Mapi {
 		}
 	}
 
+	static addTheme(name, settings) {
+		Mapi.prototype.themes = Mapi.prototype.themes || {};
+		Mapi.prototype.themes[name] = settings;
+	}
+	
 	static registerPlugin(plugin) {
 		_.each(plugin, (fn, name) => {
 			this.prototype[name] = fn;

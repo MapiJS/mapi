@@ -48,12 +48,19 @@ class Mapi {
 
 		if (!options.element) {
 			throw "You should use 'element' attribute on options.";
-		}
+		} 
+		
+		var name = $(options.element).attr('id') || $(options.element).attr('name');
+		
+		if (!name) {
+			throw "Your element must have a name or id.";
+		} 
+		  
 
-		if (!Mapi.prototype.instances[options.element]) {
-			Mapi.prototype.instances[options.element] = this.create(options);
+		if (!Mapi.prototype.instances[name]) {
+			Mapi.prototype.instances[name] = this.create(options);
 		} else {
-			var mapi = Mapi.prototype.instances[options.element];
+			var mapi = Mapi.prototype.instances[name];
 			
 			$(options.element).replaceWith(mapi.map.getDiv());
 
@@ -62,7 +69,7 @@ class Mapi {
 
 		}
 
-		return Mapi.prototype.instances[options.element];
+		return Mapi.prototype.instances[name];
 	}
 
 	create(options) {

@@ -138,10 +138,16 @@ return /******/ (function(modules) { // webpackBootstrap
 				throw "You should use 'element' attribute on options.";
 			}
 
-			if (!Mapi.prototype.instances[options.element]) {
-				Mapi.prototype.instances[options.element] = this.create(options);
+			var name = $(options.element).attr('id') || $(options.element).attr('name');
+
+			if (!name) {
+				throw "Your element must have a name or id.";
+			}
+
+			if (!Mapi.prototype.instances[name]) {
+				Mapi.prototype.instances[name] = this.create(options);
 			} else {
-				var mapi = Mapi.prototype.instances[options.element];
+				var mapi = Mapi.prototype.instances[name];
 
 				$(options.element).replaceWith(mapi.map.getDiv());
 
@@ -149,7 +155,7 @@ return /******/ (function(modules) { // webpackBootstrap
 				mapi.create(options);
 			}
 
-			return Mapi.prototype.instances[options.element];
+			return Mapi.prototype.instances[name];
 		}
 
 		_createClass(Mapi, [{

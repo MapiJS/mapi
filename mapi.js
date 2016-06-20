@@ -1,6 +1,6 @@
 /*!
  * Mapi - An easy to use wrapper for Google Maps API
- * Version: 1.0.2
+ * Version: 1.0.3
  * Author: Thiago Ribeiro - thiagofribeiro@gmail.com
  */
 (function webpackUniversalModuleDefinition(root, factory) {

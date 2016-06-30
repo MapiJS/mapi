@@ -87,11 +87,14 @@
 				zoom: 17
 			});
 
-			mapi.addMarker({
+			var marker = mapi.addMarker({
 				lat: -23.55123, 
 				lng: -47.25621,
-				icon: 'https://cdn1.iconfinder.com/data/icons/Map-Markers-Icons-Demo-PNG/128/Map-Marker-Marker-Outside-Azure.png'
+				icon: 'https://cdn1.iconfinder.com/data/icons/Map-Markers-Icons-Demo-PNG/128/Map-Marker-Marker-Outside-Azure.png',
+				content: 'testeContent'
+		
 			});
+
 
 			var test = $('<button>Test button</button>').click(function (ev) {alert('test')});
 			var t = mapi.addControl(test, 'LEFT_CENTER');

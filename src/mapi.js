@@ -131,7 +131,7 @@ class Mapi {
 		return this;
 	}
 
-	addMarker({ groupId = 'markers', id = _.uniqueId('marker-'), lat, lng, ...options }) {
+	addMarker({ groupId = 'markers', id = _.uniqueId('marker-'), lat, lng, content, ...options }) {
 		if (!this.existsObject({groupId, id})) {
 
 			options.position = new google.maps.LatLng(lat, lng);
@@ -153,6 +153,10 @@ class Mapi {
 			object.setMap(this.map);
 
 			this.addObject({groupId, id, object});
+
+			if (content) {
+				this.addInfoWindow({groupId, id, content, onlyOneActive: true});
+			}
 
 			_.each(options.events, function (fn, key) {
 				google.maps.event.addListener(
@@ -207,6 +211,37 @@ class Mapi {
 		object.mapi = object.mapi || {};
 		object.mapi.groupId = groupId;
 		object.mapi.id = id;
+	}
+
+	addInfoWindow({groupId, id, ...options}) {
+		var marker;
+		if (this.objects[groupId] && this.objects[groupId][id]) {
+			marker = this.objects[groupId][id]
+		} else {
+			throw `Object ${groupId}/${id} not found`;
+		} 
+
+		options.content = options.content || marker.id;
+
+		var infowindow = new google.maps.InfoWindow(options);
+
+		this.addObject({
+			groupId: 'infoWindow',
+			id: groupId + '-' + id,
+			object: infowindow
+		});
+
+		if (marker) {
+			marker.addListener('click', function () {
+				if (options.onlyOneActive && options.onlyOneActive === true) {
+					_(this.objects.infoWindow).each(function (el) {
+						el.close();
+					});
+				}
+
+				infowindow.open(this.map, marker);
+			}.bind(this));
+		}
 	}
 
 	removeObjects({groupId}) {

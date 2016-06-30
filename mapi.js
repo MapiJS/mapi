@@ -228,8 +228,9 @@ return /******/ (function(modules) { // webpackBootstrap
 				var id = _ref2$id === undefined ? _.uniqueId('marker-') : _ref2$id;
 				var lat = _ref2.lat;
 				var lng = _ref2.lng;
+				var content = _ref2.content;
 
-				var options = _objectWithoutProperties(_ref2, ['groupId', 'id', 'lat', 'lng']);
+				var options = _objectWithoutProperties(_ref2, ['groupId', 'id', 'lat', 'lng', 'content']);
 
 				if (!this.existsObject({ groupId: groupId, id: id })) {
 
@@ -252,6 +253,10 @@ return /******/ (function(modules) { // webpackBootstrap
 					object.setMap(this.map);
 
 					this.addObject({ groupId: groupId, id: id, object: object });
+
+					if (content) {
+						this.addInfoWindow({ groupId: groupId, id: id, content: content, onlyOneActive: true });
+					}
 
 					_.each(options.events, function (fn, key) {
 						google.maps.event.addListener(object, key, function (ev) {
@@ -319,11 +324,48 @@ return /******/ (function(modules) { // webpackBootstrap
 				object.mapi.id = id;
 			}
 		}, {
+			key: 'addInfoWindow',
+			value: function addInfoWindow(_ref5) {
+				var groupId = _ref5.groupId;
+				var id = _ref5.id;
+
+				var options = _objectWithoutProperties(_ref5, ['groupId', 'id']);
+
+				var marker;
+				if (this.objects[groupId] && this.objects[groupId][id]) {
+					marker = this.objects[groupId][id];
+				} else {
+					throw 'Object ' + groupId + '/' + id + ' not found';
+				}
+
+				options.content = options.content || marker.id;
+
+				var infowindow = new google.maps.InfoWindow(options);
+
+				this.addObject({
+					groupId: 'infoWindow',
+					id: groupId + '-' + id,
+					object: infowindow
+				});
+
+				if (marker) {
+					marker.addListener('click', function () {
+						if (options.onlyOneActive && options.onlyOneActive === true) {
+							_(this.objects.infoWindow).each(function (el) {
+								el.close();
+							});
+						}
+
+						infowindow.open(this.map, marker);
+					}.bind(this));
+				}
+			}
+		}, {
 			key: 'removeObjects',
-			value: function removeObjects(_ref5) {
+			value: function removeObjects(_ref6) {
 				var _this2 = this;
 
-				var groupId = _ref5.groupId;
+				var groupId = _ref6.groupId;
 
 				if (typeof groupId === 'undefined') {
 					throw 'The attribute "groupId" should be defined.';
@@ -335,9 +377,9 @@ return /******/ (function(modules) { // webpackBootstrap
 			}
 		}, {
 			key: 'removeObject',
-			value: function removeObject(_ref6) {
-				var groupId = _ref6.groupId;
-				var id = _ref6.id;
+			value: function removeObject(_ref7) {
+				var groupId = _ref7.groupId;
+				var id = _ref7.id;
 
 				if (typeof groupId === 'undefined' || typeof id === 'undefined') {
 					throw 'The attributes "groupId" and "id" should be defined.';
@@ -373,9 +415,9 @@ return /******/ (function(modules) { // webpackBootstrap
 			}
 		}, {
 			key: 'existsObject',
-			value: function existsObject(_ref7) {
-				var groupId = _ref7.groupId;
-				var id = _ref7.id;
+			value: function existsObject(_ref8) {
+				var groupId = _ref8.groupId;
+				var id = _ref8.id;
 
 				if (typeof this.objects[groupId] !== 'undefined') {
 					if (typeof this.objects[groupId][id] !== 'undefined') {

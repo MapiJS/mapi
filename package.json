@@ -1,6 +1,6 @@
 {
   "name": "mapi",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "An easy to use wrapper for Google Maps API",
   "main": "mapi.js",
   "scripts": {

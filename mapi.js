@@ -1,6 +1,6 @@
 /*!
  * Mapi - An easy to use wrapper for Google Maps API
- * Version: 1.0.4
+ * Version: 1.0.5
  * Author: Thiago Ribeiro - thiagofribeiro@gmail.com
  */
 (function webpackUniversalModuleDefinition(root, factory) {
@@ -252,11 +252,10 @@ return /******/ (function(modules) { // webpackBootstrap
 					object.id = id;
 					object.setMap(this.map);
 
-					this.addObject({ groupId: groupId, id: id, object: object });
+					object.mapiOptions = object.mapiOptions || {};
+					object.mapiOptions.content = content;
 
-					if (content) {
-						this.addInfoWindow({ groupId: groupId, id: id, content: content, onlyOneActive: true });
-					}
+					this.addObject({ groupId: groupId, id: id, object: object });
 
 					_.each(options.events, function (fn, key) {
 						google.maps.event.addListener(object, key, function (ev) {
@@ -310,6 +309,8 @@ return /******/ (function(modules) { // webpackBootstrap
 				var id = _ref4.id;
 				var object = _ref4.object;
 
+				object.mapiOptions = object.mapiOptions || {};
+
 				if (!this.objects[groupId]) {
 					this.objects[groupId] = {};
 				}
@@ -319,9 +320,17 @@ return /******/ (function(modules) { // webpackBootstrap
 
 				this.objects[groupId][id] = object;
 
-				object.mapi = object.mapi || {};
-				object.mapi.groupId = groupId;
-				object.mapi.id = id;
+				if (object.mapiOptions.content) {
+					this.addInfoWindow({
+						groupId: groupId,
+						id: id,
+						content: object.mapiOptions.content,
+						onlyOneActive: true
+					});
+				}
+
+				object.mapiOptions.groupId = groupId;
+				object.mapiOptions.id = id;
 			}
 		}, {
 			key: 'addInfoWindow',

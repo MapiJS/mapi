@@ -152,11 +152,10 @@ class Mapi {
 			object.id = id;
 			object.setMap(this.map);
 
-			this.addObject({groupId, id, object});
+			object.mapiOptions = object.mapiOptions || {};
+			object.mapiOptions.content = content;
 
-			if (content) {
-				this.addInfoWindow({groupId, id, content, onlyOneActive: true});
-			}
+			this.addObject({groupId, id, object});
 
 			_.each(options.events, function (fn, key) {
 				google.maps.event.addListener(
@@ -199,6 +198,8 @@ class Mapi {
 	}
 
 	addObject({groupId, id, object}) {
+		object.mapiOptions = object.mapiOptions || {};
+
 		if (!this.objects[groupId]) {
 			this.objects[groupId] = {};
 		}
@@ -208,9 +209,18 @@ class Mapi {
 		
 		this.objects[groupId][id] = object;
 		
-		object.mapi = object.mapi || {};
-		object.mapi.groupId = groupId;
-		object.mapi.id = id;
+		if (object.mapiOptions.content) {
+			this.addInfoWindow({
+				groupId, 
+				id, 
+				content: object.mapiOptions.content, 
+				onlyOneActive: true
+			});
+		}
+
+
+		object.mapiOptions.groupId = groupId;
+		object.mapiOptions.id = id;
 	}
 
 	addInfoWindow({groupId, id, ...options}) {

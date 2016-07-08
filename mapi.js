@@ -1,6 +1,6 @@
 /*!
  * Mapi - An easy to use wrapper for Google Maps API
- * Version: 1.0.5
+ * Version: 1.0.6
  * Author: Thiago Ribeiro - thiagofribeiro@gmail.com
  */
 (function webpackUniversalModuleDefinition(root, factory) {
@@ -77,43 +77,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 
 	var Mapi = function () {
-		/**
-	  * Create a Mapi object using a unique instance by element.
-	  * @example
-	  * mapi = new Mapi({element: '#map', lat: -23.2354, lng: -47.1234, zoom: 15 });
-	  * @param {object} options Options to constructor.
-	  * @param {!(String|object)} options.element CSS height of container. (default '400px')
-	  * @param {String} options.height CSS height of container. (default '400px')
-	  * @param {float} options.lat Latitude of the map center. (default 0)
-	  * @param {float} options.lng Longitude of the map center. (default 0)
-	  * @param {int} options.zoom Initial zoom. (default 2)
-	  * @param {Array<String>} options.themes List of themes.
-	  * @param {String} options.defaultTheme The initial theme of the map.
-	  * @param {string} options.backgroundColor Color used for the background of the Map div. This color will be visible when 
-	  * @param {boolean} options.disableDefaultUI Enables/disables all default UI. May be overridden individually.
-	  * @param {boolean} options.disableDoubleClickZoom Enables/disables zoom and center on double click. Enabled by default.
-	  * @param {boolean} options.draggable If false, prevents the map from being dragged. Dragging is enabled by default.
-	  * @param {string} options.draggableCursor The name or url of the cursor to display when mousing over a draggable map. This 
-	  * @param {string} options.draggingCursor The name or url of the cursor to display when the map is being dragged. This 
-	  * @param {number} options.heading The heading for aerial imagery in degrees measured clockwise from cardinal direction 
-	  * @param {boolean} options.keyboardShortcuts If false, prevents the map from being controlled by the keyboard. Keyboard 
-	  * @param {boolean} options.mapMaker True if Map Maker tiles should be used instead of regular tiles.
-	  * @param {number} options.maxZoom The maximum zoom level which will be displayed on the map. If omitted, or set to null, 
-	  * @param {number} options.minZoom The minimum zoom level which will be displayed on the map. If omitted, or set to null, 
-	  * @param {boolean} options.noClear If true, do not clear the contents of the Map div.
-	  * @param {boolean} options.rotateControl The enabled/disabled state of the Rotate control.
-	  * @param {RotateControlOptions} options.rotateControlOptions The display options for the Rotate control.
-	  * @param {boolean} options.scaleControl The initial enabled/disabled state of the Scale control.
-	  * @param {ScaleControlOptions} options.scaleControlOptions The initial display options for the Scale control.
-	  * @param {boolean} options.scrollwheel If false, disables scrollwheel zooming on the map. The scrollwheel is enabled by 
-	  * @param {StreetViewPanorama} options.streetView A StreetViewPanorama to display when the Street View pegman is dropped on 
-	  * @param {boolean} options.streetViewControl The initial enabled/disabled state of the Street View Pegman control. This 
-	  * @param {StreetViewControlOptions} options.streetViewControlOptions The initial display options for the Street View 
-	  * @param {number} options.tilt  Controls the automatic switching behavior for the angle of incidence of the map. The only 
-	  * @param {boolean} options.zoomControl The enabled/disabled state of the Zoom control.
-	  * @param {ZoomControlOptions} options.zoomControlOptions The display options for the Zoom control.
-	  **/
-
 		function Mapi() {
 			var _ref = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
@@ -309,6 +272,18 @@ return /******/ (function(modules) { // webpackBootstrap
 				var id = _ref4.id;
 				var object = _ref4.object;
 
+				if (!groupId) {
+					throw 'GroupId is undefined. You have to define the addObject() arguments in JSON format';
+				}
+
+				if (!id) {
+					throw 'Id is undefined. You have to define the addObject() arguments in JSON format';
+				}
+
+				if (!object) {
+					throw 'Object is undefined. You have to define the addObject() arguments in JSON format';
+				}
+
 				object.mapiOptions = object.mapiOptions || {};
 
 				if (!this.objects[groupId]) {
@@ -383,6 +358,8 @@ return /******/ (function(modules) { // webpackBootstrap
 				_(this.objects[groupId]).each(function (obj, id) {
 					_this2.removeObject({ groupId: groupId, id: id });
 				});
+
+				delete this.objects[groupId];
 			}
 		}, {
 			key: 'removeObject',
@@ -405,7 +382,7 @@ return /******/ (function(modules) { // webpackBootstrap
 							obj.remove();
 						}
 
-						if (obj.data) {
+						if (obj.data && typeof obj.data == 'function') {
 							var position = obj.data('position');
 							var index = obj.data('index');
 

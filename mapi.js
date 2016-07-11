@@ -1,6 +1,6 @@
 /*!
  * Mapi - An easy to use wrapper for Google Maps API
- * Version: 1.0.6
+ * Version: 1.1.0
  * Author: Thiago Ribeiro - thiagofribeiro@gmail.com
  */
 (function webpackUniversalModuleDefinition(root, factory) {
@@ -177,7 +177,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 					google.maps.event.trigger(this.map, 'resize');
 				} else {
-					console.error('Google Maps is not yet available');
+					throw 'Google Maps is not yet available';
 				}
 
 				return this;
@@ -284,6 +284,8 @@ return /******/ (function(modules) { // webpackBootstrap
 					throw 'Object is undefined. You have to define the addObject() arguments in JSON format';
 				}
 
+				this.extendsObject(object);
+
 				object.mapiOptions = object.mapiOptions || {};
 
 				if (!this.objects[groupId]) {
@@ -300,7 +302,8 @@ return /******/ (function(modules) { // webpackBootstrap
 						groupId: groupId,
 						id: id,
 						content: object.mapiOptions.content,
-						onlyOneActive: true
+						onlyOneActive: true,
+						position: object.getPosition()
 					});
 				}
 
@@ -413,6 +416,24 @@ return /******/ (function(modules) { // webpackBootstrap
 					}
 				} else {
 					return false;
+				}
+			}
+		}, {
+			key: 'extendsObject',
+			value: function extendsObject(obj) {
+				if (!obj.getPosition) {
+					obj.getPosition = function () {
+						if (this.type = 'polygon') {
+							// Source: http://stackoverflow.com/questions/3081021/how-to-get-the-center-of-a-polygon-in-google-maps-v3
+							var bounds = new google.maps.LatLngBounds();
+							this.getPath().forEach(function (element, index) {
+								bounds.extend(element);
+							});
+							return bounds.getCenter();
+						} else {
+							return this.position;
+						}
+					};
 				}
 			}
 		}, {

@@ -84,9 +84,9 @@ class Mapi {
 				this.setTheme(options.defaultTheme);
 			}
 
-			this.map.setCenter(this.mapCenter);
-
 			google.maps.event.trigger(this.map, 'resize');
+
+			this.map.setCenter(this.mapCenter);
 			
 		} else {
 			throw 'Google Maps is not yet available';

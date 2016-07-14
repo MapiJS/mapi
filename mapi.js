@@ -1,6 +1,6 @@
 /*!
  * Mapi - An easy to use wrapper for Google Maps API
- * Version: 1.1.0
+ * Version: 1.1.1
  * Author: Thiago Ribeiro - thiagofribeiro@gmail.com
  */
 (function webpackUniversalModuleDefinition(root, factory) {
@@ -173,9 +173,9 @@ return /******/ (function(modules) { // webpackBootstrap
 						this.setTheme(options.defaultTheme);
 					}
 
-					this.map.setCenter(this.mapCenter);
-
 					google.maps.event.trigger(this.map, 'resize');
+
+					this.map.setCenter(this.mapCenter);
 				} else {
 					throw 'Google Maps is not yet available';
 				}
@@ -298,6 +298,7 @@ return /******/ (function(modules) { // webpackBootstrap
 				this.objects[groupId][id] = object;
 
 				if (object.mapiOptions.content) {
+
 					this.addInfoWindow({
 						groupId: groupId,
 						id: id,
